@@ -19,6 +19,7 @@ func NewServer() *uds.UDSServer {
 	s := uds.Default(wc.UnixAddress)
 	s.Option.AutoRecover = true
 	s.Option.AutoCheck = false
+	s.Option.MaxSize = 5 << 20
 	logger.InfoF("%s uds server run @ [%s]", WDNMD, s.Name)
 	return s
 }

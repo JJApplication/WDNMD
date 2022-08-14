@@ -9,6 +9,7 @@ Copyright Renj
 package main
 
 import (
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -161,7 +162,7 @@ func checkProcess(apps []string) ([]appInfo, bool) {
 		if app == "" {
 			continue
 		}
-		tmpInfo := appInfo{App: strings.TrimPrefix(app, wc.AppRoot), Status: StatusBad}
+		tmpInfo := appInfo{App: filepath.Base(app), Status: StatusBad}
 		for _, p := range ps {
 			pName, _ := p.Cmdline()
 			if strings.Contains(pName, app) {
@@ -175,7 +176,7 @@ func checkProcess(apps []string) ([]appInfo, bool) {
 				numThreads, _ := p.NumThreads()
 				io, _ := p.IOCounters()
 				tmpInfo = appInfo{
-					App:           strings.TrimPrefix(app, wc.AppRoot),
+					App:           filepath.Base(app),
 					Cmd:           pName,
 					Status:        status,
 					Pid:           p.Pid,
