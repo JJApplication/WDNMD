@@ -9,6 +9,7 @@ Copyright Renj
 package main
 
 import (
+	"math"
 	"path/filepath"
 	"strings"
 	"time"
@@ -39,12 +40,17 @@ func getCpuCount() int {
 // 获取cpu占用率
 // 默认只计算单核
 func getCpu() float64 {
-	data, err := cpu.Percent(time.Second, false)
+	data, err := cpu.Percent(time.Second, true)
 	if err != nil {
 		logger.ErrorF("get cpu percent error: %s", err.Error())
 		return 0
 	}
-	return data[0]
+	// 计算总值
+	var all float64
+	for _, v := range data {
+		all += v
+	}
+	return math.Floor(all / float64(len(data)))
 }
 
 // 获取系统负载

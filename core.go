@@ -42,4 +42,6 @@ func InitJobs() {
 	healthCheck()
 	checkApps()
 	systemCheck()
+	systemLoopCheck()
+	checkAppsLoop()
 }

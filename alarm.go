@@ -39,6 +39,10 @@ func systemAlarmInfo() string {
 	)
 }
 
+func systemAlarmLoopCheckInfo() string {
+	return fmt.Sprintf("<h4>系统告警</h4><p>内存占用达到阈值</p></br><p>内存占用: %f%%</br>空闲内存: %f bytes</p>", getMemUsed(), getMemAvail())
+}
+
 // 服务监控定时信息
 func appAlarmInfo(appInfos []appInfo) string {
 	header := `<h4 style="color: #378de5">微服务状态</h4>`
@@ -74,3 +78,18 @@ func appAlarmInfo(appInfos []appInfo) string {
 }
 
 // 服务监控告警信息
+// 上报出错的微服务
+func appAlarmLoopInfo(appInfos []appInfo) string {
+	header := `<h4 style="color: #dc4905">微服务状态异常</h4>`
+	body := ""
+	for _, app := range appInfos {
+		if app.Status == StatusBad {
+			appBody := `<div style="font-size: 0.85rem;margin-bottom: 0.5rem">%s</div>`
+			pre := fmt.Sprintf(`<strong style="font-size: 1rem;color: #dc4905">[*] %s</strong>`, app.App)
+			infoBody := fmt.Sprintf(appBody, pre)
+			body = body + infoBody
+			continue
+		}
+	}
+	return fmt.Sprintf("%s%s", header, body)
+}
