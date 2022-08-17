@@ -27,7 +27,9 @@ type wdnmdConfig struct {
 	UnixAddress string   // 监听地址
 	Talker      string   // 接收方地址
 	To          string   // 收件人
-	AppRoot     string
+	AppRoot     string   // app root
+	MongoName   string
+	MongoURL    string
 }
 
 const (
@@ -46,6 +48,8 @@ func init() {
 		Talker:      envLoader.Get("Talker").Raw(),
 		To:          envLoader.Get("To").Raw(),
 		AppRoot:     envLoader.Get("APP_ROOT").Raw(),
+		MongoName:   envLoader.Get("MongoName").Raw(),
+		MongoURL:    envLoader.Get("MongoURL").Raw(),
 	}
 }
 

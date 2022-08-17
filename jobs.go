@@ -27,9 +27,9 @@ func healthCheck() {
 	c.Start()
 }
 
-// 每天早晚9点
+// 每天早9点
 func checkApps() {
-	c := cron.NewGroup("0 0 9,21 * * ?")
+	c := cron.NewGroup("0 0 9 * * ?")
 	_, err := c.AddFunc(func() {
 		logger.Info("job [checkApps] run")
 		var allApps []string
@@ -116,7 +116,7 @@ func systemLoopCheck() {
 	_, err := c.AddFunc(func() {
 		logger.Info("job [systemLoopCheck] run")
 		memInfo := getMemUsed()
-		if memInfo <= 0.5 {
+		if memInfo <= 0.5*100 {
 			return
 		}
 		res, err := udsc.SendWithRes(uds.Req{
@@ -125,7 +125,7 @@ func systemLoopCheck() {
 				Type:     "",
 				Message:  systemAlarmLoopCheckInfo(),
 				IsFile:   false,
-				Subject:  TitleSystemInfo,
+				Subject:  TitleSysAlarm,
 				Attach:   nil,
 				To:       []string{wc.To},
 				Cc:       nil,
@@ -179,7 +179,7 @@ func checkAppsLoop() {
 				Type:     "",
 				Message:  appAlarmLoopInfo(badApps),
 				IsFile:   false,
-				Subject:  TitleAppInfo,
+				Subject:  TitleAppAlarm,
 				Attach:   nil,
 				To:       []string{wc.To},
 				Cc:       nil,

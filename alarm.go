@@ -16,8 +16,10 @@ import (
 // 生成告警信息
 
 const (
-	TitleSystemInfo = "[System Info]系统状态"
-	TitleAppInfo    = "[App Info]服务状态"
+	TitleSystemInfo = "[SYSTEM INFO]系统状态"
+	TitleAppInfo    = "[AOO INFO]服务状态"
+	TitleAppAlarm   = "[APP ALARM]服务告警"
+	TitleSysAlarm   = "[SYSTEM ALARM]系统告警"
 )
 
 // 生成系统信息
