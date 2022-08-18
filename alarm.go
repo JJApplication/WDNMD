@@ -17,7 +17,7 @@ import (
 
 const (
 	TitleSystemInfo = "[SYSTEM INFO]系统状态"
-	TitleAppInfo    = "[AOO INFO]服务状态"
+	TitleAppInfo    = "[APP INFO]服务状态"
 	TitleAppAlarm   = "[APP ALARM]服务告警"
 	TitleSysAlarm   = "[SYSTEM ALARM]系统告警"
 )
