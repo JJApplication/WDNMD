@@ -93,6 +93,7 @@ func appAlarmInfo(appInfos []appInfo) string {
 		infoBody := fmt.Sprintf(appBody, pre, t, pid, cpu, mem, memRss, conn, thread, io)
 		body = body + infoBody
 	}
+	go mongoAppInfo(appInfos)
 	return fmt.Sprintf("%s%s", header, body)
 }
 
@@ -139,6 +140,23 @@ func mongoSystemAlert(sysAlert SystemAlarmAlert) {
 	err := CreateOneAlarm(TitleSysAlarm, LevelError, body)
 	if err != nil {
 		logger.ErrorF("[SystemAlert] push message to mongo error: %s", err.Error())
+	}
+}
+
+func mongoAppInfo(appInfos []appInfo) {
+	var hasBad bool
+	for _, app := range appInfos {
+		if app.Status == StatusBad {
+			hasBad = true
+			break
+		}
+	}
+	if hasBad {
+		body := "微服务状态正常"
+		err := CreateOneAlarm(TitleAppAlarm, LevelInfo, body)
+		if err != nil {
+			logger.ErrorF("[AppInfo] push message to mongo error: %s", err.Error())
+		}
 	}
 }
 
