@@ -123,7 +123,7 @@ func systemLoopCheck() {
 			Operation: sendAlarmHtml,
 			Data: mailReq(mailInfo{
 				Type:     "",
-				Message:  systemAlarmLoopCheckInfo(),
+				Message:  systemAlarmAlert(),
 				IsFile:   false,
 				Subject:  TitleSysAlarm,
 				Attach:   nil,
@@ -177,7 +177,7 @@ func checkAppsLoop() {
 			Operation: sendAlarmHtml,
 			Data: mailReq(mailInfo{
 				Type:     "",
-				Message:  appAlarmLoopInfo(badApps),
+				Message:  appAlarmAlert(badApps),
 				IsFile:   false,
 				Subject:  TitleAppAlarm,
 				Attach:   nil,

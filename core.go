@@ -10,6 +10,7 @@ package main
 
 import (
 	client "github.com/JJApplication/fushin/client/uds"
+	"github.com/JJApplication/fushin/db/mongo"
 	"github.com/JJApplication/fushin/log"
 	"github.com/JJApplication/fushin/server/uds"
 )
@@ -35,6 +36,15 @@ func NewClient() *client.UDSClient {
 
 func NewLogger() *log.Logger {
 	return log.Default(WDNMD)
+}
+
+func NewMongo() *mongo.Mongo {
+	m := &mongo.Mongo{
+		ContextTimeout: 10,
+		DBName:         wc.MongoName,
+		URL:            wc.MongoURL,
+	}
+	return m
 }
 
 // InitJobs 初始化定时任务

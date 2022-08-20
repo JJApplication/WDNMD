@@ -26,23 +26,40 @@ const (
 // 非告警 定时发送
 func systemAlarmInfo() string {
 	p, f, v := getPlatform()
-	return fmt.Sprintf(
-		"<h4>环境信息</h4>操作系统: %s</br>系统家族: %s</br>系统版本: %s</br>内核版本: %s</br>上次启动时间: %s</br>CPU核心数: %d</br>CPU使用率: %v</br>内存使用率: %v</br>可用内存: %v</br>运行进程数: %d</br>",
-		p,
-		f,
-		v,
-		getKernel(),
-		getBoot(),
-		getCpuCount(),
-		fmt.Sprintf("%f%%", getCpu()),
-		fmt.Sprintf("%f%%", getMemUsed()),
-		fmt.Sprintf("%f bytes", getMemAvail()),
-		getProcessCount(),
+	sysInfo := SystemAlarmInfo{
+		System:       p,
+		Family:       f,
+		Version:      v,
+		Kernel:       getKernel(),
+		BootTime:     getBoot(),
+		CpuCount:     getCpuCount(),
+		CpuPercent:   getCpu(),
+		MemUsed:      getMemUsed(),
+		MemAvail:     getMemAvail(),
+		ProcessCount: getProcessCount(),
+	}
+	go mongoSystemInfo(sysInfo)
+	return fmt.Sprintf(SystemInfoTemplate,
+		sysInfo.System,
+		sysInfo.Family,
+		sysInfo.Version,
+		sysInfo.Kernel,
+		sysInfo.BootTime,
+		sysInfo.CpuCount,
+		fmt.Sprintf("%f%%", sysInfo.CpuPercent),
+		fmt.Sprintf("%f%%", sysInfo.MemUsed),
+		fmt.Sprintf("%f bytes", sysInfo.MemAvail),
+		sysInfo.ProcessCount,
 	)
 }
 
-func systemAlarmLoopCheckInfo() string {
-	return fmt.Sprintf("<h4>系统告警</h4><p>内存占用达到阈值</p></br><p>内存占用: %f%%</br>空闲内存: %f bytes</p>", getMemUsed(), getMemAvail())
+func systemAlarmAlert() string {
+	sysAlert := SystemAlarmAlert{
+		MemUsed:  getMemUsed(),
+		MemAvail: getMemAvail(),
+	}
+	go mongoSystemAlert(sysAlert)
+	return fmt.Sprintf(SystemAlertTemplate, sysAlert.MemUsed, sysAlert.MemAvail)
 }
 
 // 服务监控定时信息
@@ -81,7 +98,7 @@ func appAlarmInfo(appInfos []appInfo) string {
 
 // 服务监控告警信息
 // 上报出错的微服务
-func appAlarmLoopInfo(appInfos []appInfo) string {
+func appAlarmAlert(appInfos []appInfo) string {
 	header := `<h4 style="color: #dc4905">微服务状态异常</h4>`
 	body := ""
 	for _, app := range appInfos {
@@ -93,5 +110,49 @@ func appAlarmLoopInfo(appInfos []appInfo) string {
 			continue
 		}
 	}
+	go mongoAppAlert(appInfos)
 	return fmt.Sprintf("%s%s", header, body)
+}
+
+// 存储上报的通知
+
+func mongoSystemInfo(sysInfo SystemAlarmInfo) {
+	body := fmt.Sprintf(SystemInfoTemplateMongo,
+		sysInfo.System,
+		sysInfo.Family,
+		sysInfo.Version,
+		sysInfo.Kernel,
+		sysInfo.BootTime,
+		sysInfo.CpuCount,
+		fmt.Sprintf("%f%%", sysInfo.CpuPercent),
+		fmt.Sprintf("%f%%", sysInfo.MemUsed),
+		fmt.Sprintf("%f bytes", sysInfo.MemAvail),
+		sysInfo.ProcessCount)
+	err := CreateOneAlarm(TitleSystemInfo, LevelInfo, body)
+	if err != nil {
+		logger.ErrorF("[SystemInfo] push message to mongo error: %s", err.Error())
+	}
+}
+
+func mongoSystemAlert(sysAlert SystemAlarmAlert) {
+	body := fmt.Sprintf(SystemAlertTemplateMongo, sysAlert.MemUsed, sysAlert.MemAvail)
+	err := CreateOneAlarm(TitleSysAlarm, LevelError, body)
+	if err != nil {
+		logger.ErrorF("[SystemAlert] push message to mongo error: %s", err.Error())
+	}
+}
+
+func mongoAppAlert(appInfos []appInfo) {
+	body := "微服务状态异常\n"
+	for _, app := range appInfos {
+		if app.Status == StatusBad {
+			appBody := fmt.Sprintf(`[*] %s\n`, app.App)
+			body = body + appBody
+			continue
+		}
+	}
+	err := CreateOneAlarm(TitleAppAlarm, LevelError, body)
+	if err != nil {
+		logger.ErrorF("[AppAlert] push message to mongo error: %s", err.Error())
+	}
 }
