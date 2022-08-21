@@ -38,7 +38,7 @@ func systemAlarmInfo() string {
 		MemAvail:     getMemAvail(),
 		ProcessCount: getProcessCount(),
 	}
-	go mongoSystemInfo(sysInfo)
+	go pushSystemInfo(sysInfo)
 	return fmt.Sprintf(SystemInfoTemplate,
 		sysInfo.System,
 		sysInfo.Family,
@@ -58,7 +58,7 @@ func systemAlarmAlert() string {
 		MemUsed:  getMemUsed(),
 		MemAvail: getMemAvail(),
 	}
-	go mongoSystemAlert(sysAlert)
+	go pushSystemAlert(sysAlert)
 	return fmt.Sprintf(SystemAlertTemplate, sysAlert.MemUsed, sysAlert.MemAvail)
 }
 
@@ -93,7 +93,7 @@ func appAlarmInfo(appInfos []appInfo) string {
 		infoBody := fmt.Sprintf(appBody, pre, t, pid, cpu, mem, memRss, conn, thread, io)
 		body = body + infoBody
 	}
-	go mongoAppInfo(appInfos)
+	go pushAppInfo(appInfos)
 	return fmt.Sprintf("%s%s", header, body)
 }
 
@@ -111,66 +111,6 @@ func appAlarmAlert(appInfos []appInfo) string {
 			continue
 		}
 	}
-	go mongoAppAlert(appInfos)
+	go pushAppAlert(appInfos)
 	return fmt.Sprintf("%s%s", header, body)
-}
-
-// 存储上报的通知
-
-func mongoSystemInfo(sysInfo SystemAlarmInfo) {
-	body := fmt.Sprintf(SystemInfoTemplateMongo,
-		sysInfo.System,
-		sysInfo.Family,
-		sysInfo.Version,
-		sysInfo.Kernel,
-		sysInfo.BootTime,
-		sysInfo.CpuCount,
-		fmt.Sprintf("%f%%", sysInfo.CpuPercent),
-		fmt.Sprintf("%f%%", sysInfo.MemUsed),
-		fmt.Sprintf("%f bytes", sysInfo.MemAvail),
-		sysInfo.ProcessCount)
-	err := CreateOneAlarm(TitleSystemInfo, LevelInfo, body)
-	if err != nil {
-		logger.ErrorF("[SystemInfo] push message to mongo error: %s", err.Error())
-	}
-}
-
-func mongoSystemAlert(sysAlert SystemAlarmAlert) {
-	body := fmt.Sprintf(SystemAlertTemplateMongo, sysAlert.MemUsed, sysAlert.MemAvail)
-	err := CreateOneAlarm(TitleSysAlarm, LevelError, body)
-	if err != nil {
-		logger.ErrorF("[SystemAlert] push message to mongo error: %s", err.Error())
-	}
-}
-
-func mongoAppInfo(appInfos []appInfo) {
-	var hasBad bool
-	for _, app := range appInfos {
-		if app.Status == StatusBad {
-			hasBad = true
-			break
-		}
-	}
-	if hasBad {
-		body := "微服务状态正常"
-		err := CreateOneAlarm(TitleAppAlarm, LevelInfo, body)
-		if err != nil {
-			logger.ErrorF("[AppInfo] push message to mongo error: %s", err.Error())
-		}
-	}
-}
-
-func mongoAppAlert(appInfos []appInfo) {
-	body := "微服务状态异常\n"
-	for _, app := range appInfos {
-		if app.Status == StatusBad {
-			appBody := fmt.Sprintf(`[*] %s\n`, app.App)
-			body = body + appBody
-			continue
-		}
-	}
-	err := CreateOneAlarm(TitleAppAlarm, LevelError, body)
-	if err != nil {
-		logger.ErrorF("[AppAlert] push message to mongo error: %s", err.Error())
-	}
 }

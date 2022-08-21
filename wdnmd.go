@@ -13,6 +13,7 @@ import (
 	"github.com/JJApplication/fushin/db/mongo"
 	"github.com/JJApplication/fushin/log"
 	"github.com/JJApplication/fushin/server/uds"
+	"github.com/JJApplication/fushin/utils/json"
 )
 
 var udsc *client.UDSClient
@@ -30,6 +31,33 @@ func main() {
 			From:  WDNMD,
 			To:    nil,
 		})
+	})
+
+	wdnmdServer.AddFunc("push", func(c *uds.UDSContext, req uds.Req) {
+		var data AlarmBase
+		if err := json.Json.UnmarshalFromString(req.Data, &data); err != nil {
+			_ = c.Response(uds.Res{
+				Error: err.Error(),
+				Data:  "",
+				From:  WDNMD,
+				To:    nil,
+			})
+		} else {
+			go func() {
+				err := CreateOneAlarm(data.Title, data.Level, data.Message)
+				if err != nil {
+					logger.ErrorF("push message to mongo error: %s", err.Error())
+				}
+			}()
+		}
+	})
+
+	wdnmdServer.AddFunc("pull", func(c *uds.UDSContext, req uds.Req) {
+
+	})
+
+	wdnmdServer.AddFunc("purge", func(c *uds.UDSContext, req uds.Req) {
+
 	})
 
 	// 初始化数据库
