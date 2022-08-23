@@ -55,8 +55,13 @@ func CreateOneAlarm(title, level, message string) error {
 }
 
 // PullAlarm 返回全部Alarm
-func PullAlarm() {
-
+func PullAlarm() []Alarm {
+	var res []Alarm
+	err := mongoC.Coll(&Alarm{}).SimpleFind(&res, mongo.M{})
+	if err != nil {
+		logger.ErrorF("pull all alarms from mongo error: %s", err.Error())
+	}
+	return res
 }
 
 // PurgeAlarm 删除Alarm

@@ -22,9 +22,9 @@ func pushSystemInfo(sysInfo SystemAlarmInfo) {
 		sysInfo.Kernel,
 		sysInfo.BootTime,
 		sysInfo.CpuCount,
-		fmt.Sprintf("%f%%", sysInfo.CpuPercent),
-		fmt.Sprintf("%f%%", sysInfo.MemUsed),
-		fmt.Sprintf("%f bytes", sysInfo.MemAvail),
+		fmt.Sprintf("%.3f%%", sysInfo.CpuPercent),
+		fmt.Sprintf("%.3f%%", sysInfo.MemUsed),
+		fmt.Sprintf("%s", calcSize(int64(sysInfo.MemAvail))),
 		sysInfo.ProcessCount)
 	err := CreateOneAlarm(TitleSystemInfo, LevelInfo, body)
 	if err != nil {
@@ -33,7 +33,7 @@ func pushSystemInfo(sysInfo SystemAlarmInfo) {
 }
 
 func pushSystemAlert(sysAlert SystemAlarmAlert) {
-	body := fmt.Sprintf(SystemAlertTemplateMongo, sysAlert.MemUsed, sysAlert.MemAvail)
+	body := fmt.Sprintf(SystemAlertTemplateMongo, sysAlert.MemUsed, calcSize(int64(sysAlert.MemAvail)))
 	err := CreateOneAlarm(TitleSysAlarm, LevelError, body)
 	if err != nil {
 		logger.ErrorF("[SystemAlert] push message to mongo error: %s", err.Error())

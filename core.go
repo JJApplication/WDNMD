@@ -38,6 +38,11 @@ func NewLogger() *log.Logger {
 	return log.Default(WDNMD)
 }
 
+func LoadConfig() {
+	logger.Info("config loaded from env")
+	logger.InfoF("config: %+v", wc)
+}
+
 func NewMongo() *mongo.Mongo {
 	m := &mongo.Mongo{
 		ContextTimeout: 10,

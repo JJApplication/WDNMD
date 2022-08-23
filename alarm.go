@@ -10,6 +10,7 @@ package main
 
 import (
 	"fmt"
+	"strconv"
 	"time"
 )
 
@@ -46,9 +47,9 @@ func systemAlarmInfo() string {
 		sysInfo.Kernel,
 		sysInfo.BootTime,
 		sysInfo.CpuCount,
-		fmt.Sprintf("%f%%", sysInfo.CpuPercent),
-		fmt.Sprintf("%f%%", sysInfo.MemUsed),
-		fmt.Sprintf("%f bytes", sysInfo.MemAvail),
+		fmt.Sprintf("%.3f%%", sysInfo.CpuPercent),
+		fmt.Sprintf("%.3f%%", sysInfo.MemUsed),
+		fmt.Sprintf("%s", calcSize(int64(sysInfo.MemAvail))),
 		sysInfo.ProcessCount,
 	)
 }
@@ -78,9 +79,9 @@ func appAlarmInfo(appInfos []appInfo) string {
 		pre := fmt.Sprintf(`<strong style="font-size: 1rem;color: #30a24c">[*] %s</strong>`, app.App)
 		t := fmt.Sprintf(`<p style="margin: 4px 0"><strong>创建时间:</strong> %s</p>`, time.Unix(app.CreateTime/1000, 0).Local().Format("2006-01-02 15:04:05"))
 		pid := fmt.Sprintf(`<p style="margin: 4px 0"><strong>PID:</strong> %d</p>`, app.Pid)
-		cpu := fmt.Sprintf(`<p style="margin: 4px 0"><strong>CPU使用:</strong> %f%%</p>`, app.CpuPercent)
-		mem := fmt.Sprintf(`<p style="margin: 4px 0"><strong>内存使用:</strong> %f%%</p>`, app.MemPercent)
-		memRss := fmt.Sprintf(`<p style="margin: 4px 0"><strong>内存占用:</strong> %d bytes</p>`, app.MemRss)
+		cpu := fmt.Sprintf(`<p style="margin: 4px 0"><strong>CPU使用:</strong> %.3f%%</p>`, app.CpuPercent)
+		mem := fmt.Sprintf(`<p style="margin: 4px 0"><strong>内存使用:</strong> %.3f%%</p>`, app.MemPercent)
+		memRss := fmt.Sprintf(`<p style="margin: 4px 0"><strong>内存占用:</strong> %s</p>`, calcSize(int64(app.MemRss)))
 		conn := fmt.Sprintf(`<p style="margin: 4px 0"><strong>连接数:</strong> %d</p>`, app.Connections)
 		thread := fmt.Sprintf(`<p style="margin: 4px 0"><strong>线程数:</strong> %d</p>`, app.NumberThreads)
 		io := fmt.Sprintf(`<p style="margin: 4px 0"><strong>IO使用:</strong> <span style="padding: 0 4px">读次数: %d</span><span style="padding: 0 4px">写次数: %d</span><span style="padding: 0 4px">读字节: %d</span><span style="padding: 0 4px">写字节: %d</span></p>`,
@@ -113,4 +114,25 @@ func appAlarmAlert(appInfos []appInfo) string {
 	}
 	go pushAppAlert(appInfos)
 	return fmt.Sprintf("%s%s", header, body)
+}
+
+const (
+	KB = 1024
+	MB = 2 << 20
+	GB = 2 << 30
+)
+
+// calcSize 计算工具类
+func calcSize(s int64) string {
+	if s == 0 {
+		return "0kb"
+	} else if s < KB {
+		return fmt.Sprintf("%sb", strconv.FormatInt(s, 10))
+	} else if s >= KB && s < MB {
+		return fmt.Sprintf("%skb", strconv.FormatInt(s/KB, 10))
+	} else if s >= MB && s < GB {
+		return fmt.Sprintf("%smb", strconv.FormatInt(s/MB, 10))
+	} else {
+		return fmt.Sprintf("%sgb", strconv.FormatInt(s/GB, 10))
+	}
 }

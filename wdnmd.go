@@ -22,6 +22,7 @@ var mongoC *mongo.Mongo
 
 func main() {
 	logger = NewLogger()
+	LoadConfig()
 	udsc = NewClient()
 	wdnmdServer := NewServer()
 	wdnmdServer.AddFunc("ping", func(c *uds.UDSContext, req uds.Req) {
@@ -40,7 +41,7 @@ func main() {
 				Error: err.Error(),
 				Data:  "",
 				From:  WDNMD,
-				To:    nil,
+				To:    req.To,
 			})
 		} else {
 			go func() {
@@ -53,11 +54,45 @@ func main() {
 	})
 
 	wdnmdServer.AddFunc("pull", func(c *uds.UDSContext, req uds.Req) {
-
+		res := PullAlarm()
+		data, err := json.Json.MarshalToString(res)
+		if err != nil {
+			_ = c.Response(uds.Res{
+				Error: err.Error(),
+				Data:  "",
+				From:  WDNMD,
+				To:    req.To,
+			})
+		} else {
+			_ = c.Response(uds.Res{
+				Error: "",
+				Data:  data,
+				From:  WDNMD,
+				To:    req.To,
+			})
+		}
 	})
 
 	wdnmdServer.AddFunc("purge", func(c *uds.UDSContext, req uds.Req) {
-
+		var data Alarm
+		if err := json.Json.UnmarshalFromString(req.Data, &data); err != nil {
+			_ = c.Response(uds.Res{
+				Error: err.Error(),
+				Data:  "",
+				From:  WDNMD,
+				To:    req.To,
+			})
+		} else {
+			go func() {
+				PurgeAOneAlarm(data.ID.String())
+			}()
+			_ = c.Response(uds.Res{
+				Error: "",
+				Data:  "",
+				From:  WDNMD,
+				To:    req.To,
+			})
+		}
 	})
 
 	// 初始化数据库
