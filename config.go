@@ -61,7 +61,9 @@ func getApps(appRoot string) []string {
 	}
 	// 默认跳过Noengine 未发布
 	for k, v := range appsMap {
-		if v.ReleaseStatus == octopus_meta.Published && v.Type != octopus_meta.TypeNoEngine {
+		if v.ReleaseStatus == octopus_meta.Published &&
+			v.Type != octopus_meta.TypeNoEngine &&
+			v.Type != "Container" {
 			apps = append(apps, filepath.Join(appRoot, k))
 		}
 	}
