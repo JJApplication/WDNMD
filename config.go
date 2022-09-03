@@ -59,11 +59,11 @@ func getApps(appRoot string) []string {
 	if err != nil {
 		return apps
 	}
-	// 默认跳过Noengine 未发布
+	// 默认跳过NoEngine NoEngine异常时服务才会异常
 	for k, v := range appsMap {
 		if v.ReleaseStatus == octopus_meta.Published &&
 			v.Type != octopus_meta.TypeNoEngine &&
-			v.Type != "Container" {
+			v.Type != octopus_meta.TypeContainer {
 			apps = append(apps, filepath.Join(appRoot, k))
 		}
 	}

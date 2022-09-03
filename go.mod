@@ -4,7 +4,7 @@ go 1.16
 
 require (
 	github.com/JJApplication/fushin v1.1.2
-	github.com/JJApplication/octopus_meta v1.0.4
+	github.com/JJApplication/octopus_meta v1.0.7
 	github.com/shirou/gopsutil v3.21.11+incompatible
 )
 
