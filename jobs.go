@@ -35,7 +35,7 @@ func checkApps() {
 		var allApps []string
 		allApps = append(allApps, wc.Apps...)
 		allApps = append(allApps, wc.ExtraApps...)
-		appInfos, ok := checkProcess(allApps)
+		appInfos, ok := checkProcess(allApps, true)
 		if !ok {
 			logger.Warn("job [checkApps] some apps not good")
 		}
@@ -158,7 +158,7 @@ func checkAppsLoop() {
 		var allApps []string
 		allApps = append(allApps, wc.Apps...)
 		allApps = append(allApps, wc.ExtraApps...)
-		appInfos, ok := checkProcess(allApps)
+		appInfos, ok := checkProcess(allApps, false)
 		if !ok {
 			logger.Warn("job [checkAppsLoop] some apps not good")
 		}

@@ -155,7 +155,7 @@ type appInfo struct {
 
 // 检查给定app的进程信息
 // 有错误时 为false
-func checkProcess(apps []string) ([]appInfo, bool) {
+func checkProcess(apps []string, all bool) ([]appInfo, bool) {
 	ps := getProcess()
 	if len(ps) == 0 {
 		return nil, false
@@ -166,6 +166,9 @@ func checkProcess(apps []string) ([]appInfo, bool) {
 	// 跳过空的app
 	for _, app := range apps {
 		if app == "" {
+			continue
+		}
+		if !all && isStopByApollo(app) {
 			continue
 		}
 		tmpInfo := appInfo{App: filepath.Base(app), Status: StatusBad}
