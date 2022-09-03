@@ -168,7 +168,7 @@ func checkProcess(apps []string, all bool) ([]appInfo, bool) {
 		if app == "" {
 			continue
 		}
-		if !all && isStopByApollo(app) {
+		if !all && isStopByApollo(filepath.Base(app)) {
 			continue
 		}
 		tmpInfo := appInfo{App: filepath.Base(app), Status: StatusBad}

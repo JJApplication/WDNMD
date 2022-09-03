@@ -33,6 +33,7 @@ func isStopByApollo(app string) bool {
 	var data DaoAPP
 	err := mongoC.Coll(&DaoAPP{}).FindOne(context.Background(), mongo.M{"app.meta.name": app}).Decode(&data)
 	if err != nil {
+		logger.ErrorF("seek app meta error: %s", err.Error())
 		return false
 	}
 	return data.Meta.Runtime.StopOperation
