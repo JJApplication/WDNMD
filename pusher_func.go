@@ -61,7 +61,7 @@ func pushAppAlert(appInfos []appInfo) {
 	body := "微服务状态异常\n"
 	for _, app := range appInfos {
 		if app.Status == StatusBad {
-			appBody := fmt.Sprintf(`[*] %s\n`, app.App)
+			appBody := fmt.Sprintf("[*] %s\n", app.App)
 			body = body + appBody
 			continue
 		}
