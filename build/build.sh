@@ -8,5 +8,5 @@ echo "GOARCH: $(go env GOARCH)"
 date -u
 
 echo "start to build"
-go build -ldflags='-w -s' -trimpath -o wdnmd ./
+go build -mod=mod -ldflags='-w -s' -trimpath -o wdnmd ./
 echo "done"

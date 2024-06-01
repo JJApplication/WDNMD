@@ -30,6 +30,13 @@ type wdnmdConfig struct {
 	AppRoot     string   // app root
 	MongoName   string
 	MongoURL    string
+
+	// 定时任务
+	JobHealthCheck  string
+	JobAppCheck     string
+	JobSystemCheck  string
+	JobSysLoopCheck string
+	JobAppLoopCheck string
 }
 
 const (
@@ -50,6 +57,13 @@ func init() {
 		AppRoot:     envLoader.Get("APP_ROOT").Raw(),
 		MongoName:   envLoader.Get("MongoName").Raw(),
 		MongoURL:    envLoader.Get("MongoURL").Raw(),
+
+		// jobs
+		JobHealthCheck:  envLoader.Get("").MustString("30m"),
+		JobAppCheck:     envLoader.Get("").MustString("0 0 9 * * ?"),
+		JobSystemCheck:  envLoader.Get("").MustString("0 0 8 * * ?"),
+		JobSysLoopCheck: envLoader.Get("").MustString("0 0 0/6 * * ?"),
+		JobAppLoopCheck: envLoader.Get("").MustString("0 0 0/1 * * ?"),
 	}
 }
 

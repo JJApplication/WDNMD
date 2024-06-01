@@ -16,7 +16,7 @@ import (
 // 后台定时执行的任务
 
 func healthCheck() {
-	c := cron.NewGroup(cron.EveryFmt("10m"))
+	c := cron.NewGroup(cron.EveryFmt(wc.JobHealthCheck))
 	_, err := c.AddFunc(func() {
 		logger.Info("job [healthCheck] run")
 	})
@@ -29,7 +29,7 @@ func healthCheck() {
 
 // 每天早9点
 func checkApps() {
-	c := cron.NewGroup("0 0 9 * * ?")
+	c := cron.NewGroup(wc.JobAppCheck)
 	_, err := c.AddFunc(func() {
 		logger.Info("job [checkApps] run")
 		var allApps []string
@@ -73,7 +73,7 @@ func checkApps() {
 
 // 每天早上8点
 func systemCheck() {
-	c := cron.NewGroup("0 0 8 * * ?")
+	c := cron.NewGroup(wc.JobSystemCheck)
 	_, err := c.AddFunc(func() {
 		logger.Info("job [systemCheck] run")
 		res, err := udsc.SendWithRes(uds.Req{
@@ -109,10 +109,10 @@ func systemCheck() {
 
 // 系统定时检查
 // 暂时不使用 因为wdnmd运行时 cpu一定是高占用的
-// 每2小时运行一次
+// 每6小时运行一次
 // 内存基线60%
 func systemLoopCheck() {
-	c := cron.NewGroup("0 0 0/2 * * ?")
+	c := cron.NewGroup(wc.JobSysLoopCheck)
 	_, err := c.AddFunc(func() {
 		logger.Info("job [systemLoopCheck] run")
 		memInfo := getMemUsed()
@@ -152,7 +152,7 @@ func systemLoopCheck() {
 
 // 服务检查 一小时一次
 func checkAppsLoop() {
-	c := cron.NewGroup("0 0 0/1 * * ?")
+	c := cron.NewGroup(wc.JobAppLoopCheck)
 	_, err := c.AddFunc(func() {
 		logger.Info("job [checkAppsLoop] run")
 		var allApps []string
