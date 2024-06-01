@@ -13,9 +13,16 @@ import (
 	"github.com/JJApplication/fushin/server/uds"
 )
 
+const (
+	DISABLED = "disable"
+)
+
 // 后台定时执行的任务
 
 func healthCheck() {
+	if wc.JobHealthCheck == DISABLED {
+		return
+	}
 	c := cron.NewGroup(cron.EveryFmt(wc.JobHealthCheck))
 	_, err := c.AddFunc(func() {
 		logger.Info("job [healthCheck] run")
@@ -29,6 +36,9 @@ func healthCheck() {
 
 // 每天早9点
 func checkApps() {
+	if wc.JobAppCheck == DISABLED {
+		return
+	}
 	c := cron.NewGroup(wc.JobAppCheck)
 	_, err := c.AddFunc(func() {
 		logger.Info("job [checkApps] run")
@@ -73,6 +83,9 @@ func checkApps() {
 
 // 每天早上8点
 func systemCheck() {
+	if wc.JobSystemCheck == DISABLED {
+		return
+	}
 	c := cron.NewGroup(wc.JobSystemCheck)
 	_, err := c.AddFunc(func() {
 		logger.Info("job [systemCheck] run")
@@ -112,6 +125,9 @@ func systemCheck() {
 // 每6小时运行一次
 // 内存基线60%
 func systemLoopCheck() {
+	if wc.JobSysLoopCheck == DISABLED {
+		return
+	}
 	c := cron.NewGroup(wc.JobSysLoopCheck)
 	_, err := c.AddFunc(func() {
 		logger.Info("job [systemLoopCheck] run")
@@ -152,6 +168,9 @@ func systemLoopCheck() {
 
 // 服务检查 一小时一次
 func checkAppsLoop() {
+	if wc.JobAppLoopCheck == DISABLED {
+		return
+	}
 	c := cron.NewGroup(wc.JobAppLoopCheck)
 	_, err := c.AddFunc(func() {
 		logger.Info("job [checkAppsLoop] run")
